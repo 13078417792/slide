@@ -2,9 +2,12 @@
 
 <head>
     <title>slide</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
     <link rel="stylesheet" type="text/css" href="index.css">
     <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
     <script type="text/javascript" src="slide.js"></script>
+
 </head>
 
 <body>
@@ -31,8 +34,10 @@
 
     <script type="text/javascript">
 
+        let s = null;
+
     	$(function(){
-    		new slide({wrapper:'.hahha',container:'.container22',prev:'.last',next:'.next2'});
+    		s = new slide({wrapper:'.hahha',container:'.container22',prev:'.last',next:'.next2'});
     	});
 
 
