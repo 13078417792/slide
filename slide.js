@@ -77,6 +77,15 @@
         pageItemElArray: null,
         slideElArray: [],
         timeoutIndex: null,
+        screenSize: {
+            width: null,
+            height: null,
+        },
+        touch: {
+            startX: null,
+            moveX: null,
+            percent: null,
+        },
         getStyle() {
             return this.style;
         },
@@ -112,7 +121,8 @@
                     el.style[i] = slideItemStyle[i];
                 }
             });
-            this.style.container.transform = this.convertTranslate3d(-1 * this.style.slideItem.width.replace('%', '') + '%');
+            this.style.slideItem.width = 100 / item_arr.length;
+            this.style.container.transform = this.convertTranslate3d((-1 * this.style.slideItem.width) + '%');
             container.setCss(this.style.container);
             // 创建容器包裹层
             let container_wrapper = document.createElement('div');
@@ -127,10 +137,15 @@
             // 清除浮动
             let clearBoth = this.createClearFloat();
             container.appendChild(clearBoth);
+            this.getScreenSize();
             this.setPage();
             this.setCurrentPageOn();
             this.event();
             this.play();
+        },
+        getScreenSize() {
+            this.screenSize.width = document.body.clientWidth;
+            this.screenSize.height = document.body.clientHeight;
         },
         createClearFloat() {
             let clearBoth = document.createElement('div');
@@ -162,6 +177,7 @@
             const prev = document.querySelector(this.config.prev);
             const next = document.querySelector(this.config.next);
             const wrapper = document.querySelector(this.config.wrapper);
+            const container = document.querySelector(this.config.container);
             prev.addEventListener('click', () => {
                 this.prev();
             });
@@ -174,6 +190,53 @@
             wrapper.addEventListener('mouseleave', () => {
                 this.play();
             });
+            // 移动端触摸事件
+            // 拖动开始
+            container.addEventListener('touchstart', e => {
+                this.stop();
+                this.hasAnimate(false);
+                this.touch.startX = e.changedTouches[0].clientX;
+            }, false);
+            // 拖动中
+            container.addEventListener('touchmove', e => {
+                let x = e.changedTouches[0].clientX,
+                    diff = this.touch.startX - x,
+                    percent = diff / this.screenSize.width,
+                    index = (this.index + percent) || 0;
+                this.touch.percent = percent;
+                const moveX = this.convertTranslate3d(-1 * this.style.slideItem.width * index + '%');
+                this.style.container.transform = moveX;
+                this.container.style.transform = this.style.container.transform;
+            }, false);
+            // 拖动结束
+            container.addEventListener('touchend', () => {
+                this.hasAnimate();
+                if (Math.abs(this.touch.percent) > 0.1) {
+                    if (this.touch.percent > 0) {
+                        this.next();
+                        if (this.index > this.elNodeArray.length - 2) {
+                            setTimeout(() => {
+                                this.hasAnimate(false);
+                                this.index = 1;
+                                this.run();
+                            }, window.getComputedStyle(container).transitionDuration.replace('s', '') * 1000 + 50);
+                        }
+                        this.touch.percent = null;
+                    } else {
+                        this.prev();
+                        if (this.index <= 0) {
+                            setTimeout(() => {
+                                this.hasAnimate(false);
+                                this.index = this.elNodeArray.length - 2;
+                                this.run();
+                            }, window.getComputedStyle(container).transitionDuration.replace('s', '') * 1000 + 50);
+                        }
+                        this.touch.percent = null;
+                    }
+                    return false;
+                }
+                this.run();
+            }, false);
         },
         // 是否有过渡效果
         hasAnimate: function(has = true) {
@@ -186,7 +249,7 @@
         },
         // 执行
         run: function() {
-            const x = this.convertTranslate3d(-1 * this.style.slideItem.width.replace('%', '') * this.index + '%');
+            const x = this.convertTranslate3d((-1 * this.style.slideItem.width * this.index) + '%');
             this.style.container.transform = x;
             this.container.style.transform = this.style.container.transform;
             this.setCurrentPageOn();
@@ -195,6 +258,7 @@
         },
         // 下一张
         next: function() {
+            // console.log('next');
             if (this.index < this.elNodeArray.length - 1) {
                 this.hasAnimate(true);
                 this.index += 1;
@@ -206,7 +270,7 @@
                     this.hasAnimate();
                     this.index += 1;
                     this.run();
-                }, 50);
+                }, window.getComputedStyle(document.querySelector(this.config.container)).transitionDuration.replace('s', '') * 1000 + 50);
                 return false;
             }
             this.run();
@@ -221,7 +285,7 @@
                     this.hasAnimate();
                     this.index -= 1;
                     this.run();
-                }, 50);
+                }, window.getComputedStyle(document.querySelector(this.config.container)).transitionDuration.replace('s', '') * 1000 + 50);
                 return false;
             } else {
                 this.hasAnimate();
