@@ -177,7 +177,6 @@
             const prev = document.querySelector(this.config.prev);
             const next = document.querySelector(this.config.next);
             const wrapper = document.querySelector(this.config.wrapper);
-            const container = document.querySelector(this.config.container);
             prev.addEventListener('click', () => {
                 this.prev();
             });
@@ -190,6 +189,10 @@
             wrapper.addEventListener('mouseleave', () => {
                 this.play();
             });
+            this.touchEvent();
+        },
+        touchEvent() {
+            const container = document.querySelector(this.config.container);
             // 移动端触摸事件
             // 拖动开始
             container.addEventListener('touchstart', e => {
@@ -233,9 +236,12 @@
                         }
                         this.touch.percent = null;
                     }
-                    return false;
+                    // return false;
+                } else {
+                    setTimeout(() => {
+                        this.next();
+                    }, this.config.duration);
                 }
-                this.run();
             }, false);
         },
         // 是否有过渡效果
@@ -346,7 +352,7 @@
         play: function() {
             this.timeoutIndex = setTimeout(() => {
                 this.next();
-            }, this.config.duration)
+            }, this.config.duration);
         }, // 运行
     }
     w.slide = slide;
