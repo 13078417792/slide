@@ -242,9 +242,7 @@
                     }
                     // return false;
                 } else {
-                    setTimeout(() => {
-                        this.next();
-                    }, this.config.duration);
+                    this.run();
                 }
             }, false);
         },
