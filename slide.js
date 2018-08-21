@@ -177,12 +177,16 @@
             const prev = document.querySelector(this.config.prev);
             const next = document.querySelector(this.config.next);
             const wrapper = document.querySelector(this.config.wrapper);
-            prev.addEventListener('click', () => {
-                this.prev();
-            });
-            next.addEventListener('click', () => {
-                this.next();
-            });
+            if (!empty(prev)) {
+                prev.addEventListener('click', () => {
+                    this.prev();
+                });
+            }
+            if (!empty(next)) {
+                next.addEventListener('click', () => {
+                    this.next();
+                });
+            }
             wrapper.addEventListener('mouseenter', () => {
                 this.stop();
             });
